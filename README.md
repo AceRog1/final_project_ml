@@ -128,5 +128,5 @@ El dashboard de Streamlit te permitirá:
 ---
 
 <div align="center">
-  <p>🔗 <strong>Desarrollado con ❤️ para el curso de Machine Learning</strong></p>
+  <p>🔗 <strong>Desarrollado con ❤️ para el curso de Machine Learning 🤖</strong></p>
 </div>
