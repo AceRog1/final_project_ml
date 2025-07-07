@@ -1,6 +1,6 @@
 # Clustering en Streaming del Trafico Aéreo en America del Sur
 
-### Intrucciones para la instalacion (Linux y MacOS):
+## Intrucciones para la instalacion (Linux y MacOS):
 
 **Requisitos:**
 * Sistema Operativo Linux o MacOS
@@ -40,7 +40,7 @@ docker run -d --name kafka --network kafka-net -p 9092:9092 \
   confluentinc/cp-kafka
 ```
 
-### Intrucciones para correr el proyecto:
+## Intrucciones para correr el proyecto:
 
 Para esto, tienes que tener activado el entorno virtual y los dockers de kafka y zookeeper.
 
