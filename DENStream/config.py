@@ -1,7 +1,7 @@
 import os
 from pathlib import Path
 
-# Configuración general
+# Configuracion general
 BASE_DIR = Path(__file__).parent
 DATA_DIR = BASE_DIR / "data_flights_local"
 MODELS_DIR = BASE_DIR / "models"
@@ -11,7 +11,7 @@ LOGS_DIR = BASE_DIR / "logs"
 for dir_path in [DATA_DIR, MODELS_DIR, LOGS_DIR]:
     dir_path.mkdir(exist_ok=True)
 
-# Configuración de Kafka
+# Configuracion de Kafka
 KAFKA_CONFIG = {
     'bootstrap.servers': 'localhost:9092',
     'group.id': 'flight_ml_pipeline',
@@ -20,7 +20,7 @@ KAFKA_CONFIG = {
 
 KAFKA_TOPIC = 'flight_stream'
 
-# Configuración del modelo
+# Configuracion del modelo
 # MODEL_CONFIG = {
 #     'warm_up_size': 10,
 #     'decay_rate': 0.01,
@@ -33,9 +33,9 @@ KAFKA_TOPIC = 'flight_stream'
 #     'warm_up_size': 1000,
 #     'decaying_factor': 0.25,
 #     'beta': 0.75,            # Reemplaza core_weight_threshold
-#     'mu': 2,                 # Nuevo parámetro
-#     'epsilon': 0.02,         # Nuevo parámetro
-#     'n_samples_init': 1000   # Nuevo parámetro
+#     'mu': 2,                 # Nuevo parametro
+#     'epsilon': 0.02,         # Nuevo parametro
+#     'n_samples_init': 1000   # Nuevo parametro
 # }
 
 # PRUEBA 2
@@ -43,9 +43,9 @@ KAFKA_TOPIC = 'flight_stream'
 #     'warm_up_size': 3000,
 #     'decaying_factor': 0.005,
 #     'beta': 0.3,            # Reemplaza core_weight_threshold
-#     'mu': 5,                 # Nuevo parámetro
-#     'epsilon': 0.08,         # Nuevo parámetro
-#     'n_samples_init': 3000   # Nuevo parámetro
+#     'mu': 5,                 # Nuevo parametro
+#     'epsilon': 0.08,         # Nuevo parametro
+#     'n_samples_init': 3000   # Nuevo parametro
 # }
 
 # PRUEBA 3
@@ -53,9 +53,9 @@ KAFKA_TOPIC = 'flight_stream'
 #     'warm_up_size': 3000,
 #     'decaying_factor': 0.01,
 #     'beta': 0.5,            # Reemplaza core_weight_threshold
-#     'mu': 10,                 # Nuevo parámetro
-#     'epsilon': 0.05,         # Nuevo parámetro
-#     'n_samples_init': 3000   # Nuevo parámetro
+#     'mu': 10,                 # Nuevo parametro
+#     'epsilon': 0.05,         # Nuevo parametro
+#     'n_samples_init': 3000   # Nuevo parametro
 # }
 
 # PRUEBA 4
@@ -63,9 +63,9 @@ KAFKA_TOPIC = 'flight_stream'
 #     'warm_up_size': 1000,
 #     'decaying_factor': 0.008,
 #     'beta': 0.5,            # Reemplaza core_weight_threshold
-#     'mu': 8,                 # Nuevo parámetro
-#     'epsilon': 0.05,         # Nuevo parámetro
-#     'n_samples_init': 5000   # Nuevo parámetro
+#     'mu': 8,                 # Nuevo parametro
+#     'epsilon': 0.05,         # Nuevo parametro
+#     'n_samples_init': 5000   # Nuevo parametro
 # }
 
 # PRUEBA 5 BIG DATA
@@ -73,22 +73,22 @@ KAFKA_TOPIC = 'flight_stream'
 #     'warm_up_size': 1000,
 #     'decaying_factor': 0.0001,
 #     'beta': 0.2,            # Reemplaza core_weight_threshold
-#     'mu': 20,                 # Nuevo parámetro
-#     'epsilon': 1,         # Nuevo parámetro
-#     'n_samples_init': 1000   # Nuevo parámetro
+#     'mu': 20,                 # Nuevo parametro
+#     'epsilon': 1,         # Nuevo parametro
+#     'n_samples_init': 1000   # Nuevo parametro
 # }
 
-# PRUEBA 6 GeminiV1
+# PRUEBA 6 
 MODEL_CONFIG = {
     'warm_up_size': 1000,
     'decaying_factor': 0.05,       # Memoria larga
-    'beta': 0.5,              # Ventana de outlier estándar
+    'beta': 0.5,              # Ventana de outlier estandar
     'mu': 15,                 # Umbral de densidad alto
     'epsilon': 0.2,           # Radio grande (aprox. 22 km)
     'n_samples_init': 1000
 }
 
-# PRUEBA 7 GeminiV2
+# PRUEBA 7
 # MODEL_CONFIG = {
 #     'warm_up_size': 1000,
 #     'decaying_factor': 0.1,        # Memoria media
@@ -98,24 +98,34 @@ MODEL_CONFIG = {
 #     'n_samples_init': 1000
 # }
 
-# Configuración de proyección UTM
-# Zona UTM 18N para Perú (Lima)
+# El mas estable
+# MODEL_CONFIG = {
+#     'warm_up_size': 1000,
+#     'decaying_factor': 0.25,
+#     'beta': 0.75,            # Reemplaza core_weight_threshold
+#     'mu': 2,                 # Nuevo parametro
+#     'epsilon': 0.02,         # Nuevo parametro
+#     'n_samples_init': 1000   # Nuevo parametro
+# }
+
+# Configuracion de proyeccion UTM
+# Zona UTM 18N para Peru (Lima)
 UTM_ZONE = 18
 UTM_HEMISPHERE = 'N'
 UTM_EPSG = 32718  # WGS84 / UTM zone 18S para Lima, Perú
 
-# Configuración MLflow
+# Configuracion MLflow
 MLFLOW_CONFIG = {
     'experiment_name': 'flight_streaming_ml',
     'tracking_uri': 'sqlite:///mlflow.db',
     'artifact_location': str(MODELS_DIR / 'mlflow_artifacts'),
-    'log_frequency': 100  # Log cada 100 mensajes después del warm-up
+    'log_frequency': 100  # Log cada 100 mensajes despues del warm-up
 }
 
-# Configuración del Dashboard
+# Configuracion del Dashboard
 DASHBOARD_CONFIG = {
     'update_frequency': 30,  # segundos
-    'map_center': [-12.0464, -77.0428],  # Lima, Perú
+    'map_center': [-12.0464, -77.0428],  # Lima, Peru
     'map_zoom': 10,
     'heatmap_radius': 15
 }

@@ -12,7 +12,7 @@ from requests.auth import HTTPBasicAuth
 # Carga variables de entorno
 load_dotenv()
 
-# Área de América del Sur
+# Área de America del Sur
 LAT_MIN, LAT_MAX = -60.0, 15.0
 LON_MIN, LON_MAX = -90.0, -30.0
 LAT_MID = (LAT_MIN + LAT_MAX) / 2

@@ -10,7 +10,7 @@ def run():
         admin = AdminClient(kafka_config)
         print("Connecting...")
 
-        # Crear el topic con 4 particiones para las 4 zonas
+        # 4 particiones para las 4 zonas
         topic_list = [NewTopic(
             topic = "flight_stream",
             num_partitions = 4,

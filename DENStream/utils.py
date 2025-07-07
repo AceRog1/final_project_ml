@@ -48,7 +48,7 @@ class FlightDataProcessor:
                 print(f"Error: JSON parseado no es diccionario, es {type(data)}: {data}")
                 return None
         
-            # Validar que contiene campos básicos esperados
+            # Validar que contiene campos basicos esperados
             required_fields = ['longitude', 'latitude', 'baro_altitude', 'velocity', 'heading']
             missing_fields = [field for field in required_fields if field not in data]
         
@@ -79,15 +79,11 @@ class FlightDataProcessor:
             # Parsear JSON
             data = json.loads(message)
 
-            # Validar que el resultado es un diccionario
             if not isinstance(data, dict):
                 print(f"Error: JSON parseado no es diccionario, es {type(data)}: {data}")
                 return None
-
-            # Validar que contiene campos básicos esperados
             required_fields = ['timestamp_ingest','longitude', 'latitude', 'callsign']
             missing_fields = [field for field in required_fields if field not in data]
-
             if missing_fields:
                 print(f"Campos faltantes en el mensaje: {missing_fields}")
                 print(f"Mensaje completo: {message}")
@@ -107,24 +103,20 @@ class FlightDataProcessor:
     def extract_features(self, data: Dict) -> Optional[Dict[str, float]]:
         """Extrae las características necesarias del mensaje de vuelo."""
         try:
-            # Validar que data es un diccionario
             if not isinstance(data, dict):
                 print(f"Error: data no es un diccionario, es {type(data)}: {data}")
                 return None
         
-            # Extraer campos requeridos
             longitude = data.get('longitude')
             latitude = data.get('latitude')
             baro_altitude = data.get('baro_altitude')
             velocity = data.get('velocity')
             heading = data.get('heading')
         
-            # Validar que todos los campos existen y son válidos
             if None in [longitude, latitude, baro_altitude, velocity, heading]:
                 print(f"Campos faltantes en data: {data}")
                 return None
         
-            # Validar tipos de datos
             try:
                 longitude = float(longitude)
                 latitude = float(latitude)
@@ -135,15 +127,14 @@ class FlightDataProcessor:
                 print(f"Error convirtiendo a float: {e}")
                 return None
             
-            # Proyectar coordenadas a metros
             x, y = self.projector.project_to_meters(longitude, latitude)
         
-            # Calcular componentes trigonométricas del heading
+            # Calcular componentes trigonometricas del heading
             heading_rad = math.radians(heading)
             sin_heading = math.sin(heading_rad)
             cos_heading = math.cos(heading_rad)
         
-            # Formar diccionario de características
+            # Formar diccionario de caracteristicas
             features = {
                 'x': x,
                 'y': y,

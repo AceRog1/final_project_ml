@@ -7,20 +7,18 @@ import mlflow.sklearn
 import numpy as np
 from datetime import datetime, timezone
 from typing import Dict, Optional
-
-from river import cluster  # Cambiado: importar módulo de clustering
+from river import cluster
 from river import preprocessing
 from confluent_kafka import Consumer, KafkaException, KafkaError
-
 from config import KAFKA_CONFIG, KAFKA_TOPIC, MODEL_CONFIG, MLFLOW_CONFIG, DATA_DIR
 from utils import GeoProjector, FlightDataProcessor, MetricsLogger, save_model_checkpoint
+from sqlite_store import FlightDataStorage
 
 
 class FlightMLPipeline:
     """Pipeline principal de ML para datos de vuelo en streaming."""
 
     def __init__(self):
-        # Inicializar componentes
         self.projector = GeoProjector()
         self.processor = FlightDataProcessor(self.projector)
         self.logger = MetricsLogger()
@@ -28,7 +26,7 @@ class FlightMLPipeline:
         # Inicializar modelo y scaler
         self.scaler = preprocessing.StandardScaler()
 
-        # REEMPLAZO: Modelo DenStream en lugar de regresión lineal
+        # Modelo DenStream
         self.model = cluster.DenStream(
             decaying_factor=float(MODEL_CONFIG['decaying_factor']),
             beta=float(MODEL_CONFIG['beta']),
@@ -48,6 +46,11 @@ class FlightMLPipeline:
         # Configurar Kafka
         self.setup_kafka()
 
+        self.data_storage = FlightDataStorage(
+            db_path='flight_data.db',
+            retention_minutes=60  # Mantener datos por 1 hora
+        )
+
     def setup_mlflow(self):
         """Configura MLflow para tracking."""
         mlflow.set_tracking_uri(MLFLOW_CONFIG['tracking_uri'])
@@ -56,7 +59,7 @@ class FlightMLPipeline:
         # Iniciar run de MLflow
         self.mlflow_run = mlflow.start_run()
 
-        # Log parámetros de DenStream
+        # Log parametros de DenStream
         mlflow.log_params({
             'warm_up_size': self.warm_up_size,
             'decaying_factor': MODEL_CONFIG['decaying_factor'],
@@ -73,30 +76,17 @@ class FlightMLPipeline:
         self.consumer.subscribe([KAFKA_TOPIC])
         print("Kafka consumer configurado y conectado")
 
-    def saved_data_point(self, data: dict, name_json: str = None):
+    def saved_data_point(self, data: dict):
         """Guarda un punto de datos en un archivo JSON dentro de DATA_DIR."""
-        # Asegurar que el directorio existe
-        os.makedirs(DATA_DIR, exist_ok=True)
 
-        # Generar nombre de archivo si no se proporciona
-        if name_json is None:
-            icao24 = data.get('icao24', 'unknown')
-            name_json = f"{icao24}.json"
-
-        # Construir la ruta completa
-        file_path = os.path.join(DATA_DIR, name_json)
-
-        # Guardar el diccionario como JSON
-        with open(file_path, 'w') as f:
-            json.dump(data, f, indent=4)
-
-        print(f"Archivo guardado en: {file_path}")
+        self.data_storage.save_flight_data(data)
+        print("se gurado correctamente")
 
 
     def process_message(self, message: str) -> bool:
         """Procesa un mensaje individual con DenStream."""
         try:
-            # Parsear y guardar mensaje (opcional)
+            # Parsear y guardar mensaje 
             data = self.processor.parse_flight_message(message)
             if data is None:
                 return False
@@ -105,8 +95,16 @@ class FlightMLPipeline:
             if features is None:
                 return False
 
+
             if not self.processor.validate_features(features):
                 return False
+
+
+            data_merge = {
+                **data,
+                **features
+            }
+
 
             self.message_count += 1
 
@@ -120,9 +118,9 @@ class FlightMLPipeline:
 
                 if self.message_count >= self.warm_up_size:
                     self.warm_up_complete = True
-                    print(f"🎉 Warm-up completado. Iniciando clustering...")
+                    print(f"Warm-up completado. Iniciando clustering...")
 
-            # Fase de producción: predecir y aprender
+            # Fase de produccion: predecir y aprender
             else:
                 # Obtener cluster asignado
                 cluster_id = self.model.predict_one(scaled_features)
@@ -130,18 +128,17 @@ class FlightMLPipeline:
                 # Actualizar modelo
                 self.model.learn_one(scaled_features)
 
-                # Log periódico a MLflow
+                # Log periodico a MLflow
                 if self.message_count % MLFLOW_CONFIG['log_frequency'] == 0:
                     self.log_to_mlflow(cluster_id, features, scaled_features)
 
-                data["cluster"] = cluster_id
-                self.saved_data_point(data)
-
-
+                data_merge["cluster"] = cluster_id
+                data_merge['timestamp_ingest'] = datetime.utcnow().isoformat()
+                self.saved_data_point(data_merge)
             return True
 
         except Exception as e:
-            print(f"❌ Error procesando mensaje: {e}")
+            print(f"Error procesando mensaje: {e}")
             return False
 
     def log_to_mlflow(self, cluster_id: int, features: Dict, scaled_features: Dict):
@@ -153,7 +150,7 @@ class FlightMLPipeline:
             mlflow.log_metric("cluster_id", cluster_id, step=step)
             mlflow.log_metric("num_clusters", len(self.model.p_micro_clusters), step=step)
 
-            # Características escaladas
+            # Caracteristicas escaladas
             mlflow.log_metric("scaled_velocity", float(scaled_features['vel']), step=step)
             mlflow.log_metric("scaled_altitude", float(scaled_features['alt']), step=step)
 
