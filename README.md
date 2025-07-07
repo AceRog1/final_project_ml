@@ -44,22 +44,22 @@ docker run -d --name kafka --network kafka-net -p 9092:9092 \
 
 Para esto, tienes que tener activado el entorno virtual y los dockers de kafka y zookeeper.
 
-**Paso 1:** Correr el `topic.py` (es caso de no ser la primera vez corriendo el proyecto, no es necesario correr esto)
+1️⃣ **Paso 1:** Correr el `topic.py` (es caso de no ser la primera vez corriendo el proyecto, no es necesario correr esto)
 ```bash
 python3 kafka/topic.py
 ```
 
-**Paso 2:** Correr el `producer.py`, tener en cuenta que hay que crearse una cuneta en [Open Sky Network](https://opensky-network.org/) y poner las creneciales en un archivo `.env`. Ponerlo en la carpeta de `kafka/`
+2️⃣ **Paso 2:** Correr el `producer.py`, tener en cuenta que hay que crearse una cuneta en [Open Sky Network](https://opensky-network.org/) y poner las creneciales en un archivo `.env`. Ponerlo en la carpeta de `kafka/`
 ```bash
 python3 kafka/producer.py
 ```
 
-**Paso 3:** Correr el `ml_pipeline.py`, se tiene que dejar corriendo hasta que termine el proceso de *warm_up*
+3️⃣ **Paso 3:** Correr el `ml_pipeline.py`, se tiene que dejar corriendo hasta que termine el proceso de *warm_up*
 ```bash
 python3 DENStream/ml_pipeline.py
 ```
 
-**Paso 4:** Correr el `dashboard.py`, una vez termine el proceso de *warm_up*, ya esta listo para visualizar el Dashboard
+4️⃣ **Paso 4:** Correr el `dashboard.py`, una vez termine el proceso de *warm_up*, ya esta listo para visualizar el Dashboard
 ```bash
 cd DENStream/
 streamlit run dashboard.py
