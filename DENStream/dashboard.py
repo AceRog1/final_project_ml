@@ -39,7 +39,7 @@ class FlightDashboard:
 
         # Inicializar el sistema de almacenamiento
         self.data_storage = FlightDataStorage(
-            db_path='flight_data.db',
+            db_path='../flight_data.db',
             retention_minutes=5  # Mantener datos por 1 hora
         )
         cleanup_thread = threading.Thread(
