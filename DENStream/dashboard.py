@@ -238,7 +238,7 @@ class FlightDashboard:
         try:
             # Crear copia para no modificar el DataFrame original
             windrose_df = df.copy()
-
+            windrose_df['cluster'] = windrose_df['cluster'].astype(str)
             # Agrupar clusters pequeños en "Otros"
             cluster_counts = windrose_df['cluster'].value_counts()
             if len(cluster_counts) > 5:
